@@ -3,8 +3,9 @@ name: CI Workflow
 on:
   pull_request:
     branches: [prod, dev]
-  tags:
-    - 'v*'
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   build:
