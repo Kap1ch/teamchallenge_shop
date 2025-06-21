@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+import dj_database_url
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -69,17 +70,26 @@ WSGI_APPLICATION = 'store.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("POSTGRES_DB", "postgres"),
-        'USER': os.environ.get("POSTGRES_USER", "postgres"),
-        'PASSWORD': os.environ.get("POSTGRES_PASSWORD", "postgres123456"),
-        'HOST': os.environ.get("DB_HOST", "database"),
-        'PORT': os.environ.get("DB_PORT", 5432),
-        'CONN_HEALTH_CHECKS': True,
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get("POSTGRES_DB", "postgres"),
+            'USER': os.environ.get("POSTGRES_USER", "postgres"),
+            'PASSWORD': os.environ.get("POSTGRES_PASSWORD", "postgres123456"),
+            'HOST': os.environ.get("DB_HOST", "database"),
+            'PORT': os.environ.get("DB_PORT", 5432),
+            'CONN_HEALTH_CHECKS': True,
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
