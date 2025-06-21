@@ -32,6 +32,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_swagger',
+    'django_filters',
+    'apps.catalog',
+    'apps.core',
 ]
 
 MIDDLEWARE = [
@@ -120,6 +123,23 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+
+MEDIA_URL = 'media/'
+
+CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
+
+if CLOUDINARY_URL:
+    CLOUDINARY_STORAGE = {
+        'CLOUDINARY_URL': CLOUDINARY_URL,
+        # 'CLOUD_NAME': os.environ.get("CLOUD_NAME"),
+        # 'API_KEY': os.environ.get("API_KEY"),
+        # 'API_SECRET': os.environ.get("API_SECRET"),
+    }
+
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+else:
+    MEDIA_ROOT = BASE_DIR / 'media'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -138,4 +158,5 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
 }
+
 
