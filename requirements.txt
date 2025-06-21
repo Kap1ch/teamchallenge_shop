@@ -9,3 +9,4 @@ setuptools==80.7.1
 sqlparse==0.5.3
 dj-database-url==3.0.0
 gunicorn==23.0.0
+whitenoise==6.9.0
