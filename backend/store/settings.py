@@ -34,6 +34,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_swagger',
     'django_filters',
+    'cloudinary_storage',
+    'cloudinary',
     'apps.catalog',
     'apps.core',
 ]
@@ -62,7 +64,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
-            'libraries' : {
+            'libraries': {
                 'staticfiles': 'django.templatetags.static',
             }
         },
@@ -136,20 +138,22 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 
 CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
 
 if CLOUDINARY_URL:
     CLOUDINARY_STORAGE = {
         'CLOUDINARY_URL': CLOUDINARY_URL,
-        # 'CLOUD_NAME': os.environ.get("CLOUD_NAME"),
-        # 'API_KEY': os.environ.get("API_KEY"),
-        # 'API_SECRET': os.environ.get("API_SECRET"),
     }
 
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    STORAGES = {"default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
 else:
     MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -171,5 +175,3 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
 }
-
-
