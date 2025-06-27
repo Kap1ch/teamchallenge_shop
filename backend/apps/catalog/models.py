@@ -11,3 +11,13 @@ class Catalog(BaseModel):
 
     def __str__(self):
         return str(self.name)
+
+
+
+class SubCategory(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    image_url = models.URLField(max_length=255, blank=True, null=True)
+    category = models.ForeignKey(Catalog, on_delete=models.CASCADE, related_name='subcategories')
+
+    def __str__(self):
+        return str(self.name)
