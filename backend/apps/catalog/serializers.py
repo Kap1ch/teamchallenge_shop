@@ -8,10 +8,10 @@ class CatalogSerializer(ModelSerializer):
         model = Catalog
         fields = '__all__'
 
-class SubCategorySerializer(ModelSerializer):
 
+class SubCategorySerializer(ModelSerializer):
     category = CatalogSerializer(read_only=True)
-    category_id  = PrimaryKeyRelatedField(
+    category_id = PrimaryKeyRelatedField(
         queryset=Catalog.objects.all(),
         source='category',
         write_only=True
@@ -19,4 +19,4 @@ class SubCategorySerializer(ModelSerializer):
 
     class Meta:
         model = SubCategory
-        fields = ['id', 'name', 'image_url', 'category', 'category_id']
+        fields = '__all__'
