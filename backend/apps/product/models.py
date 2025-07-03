@@ -53,8 +53,8 @@ class Review(BaseModel):
 class ProductColor(BaseModel):
     image_url = models.ImageField(upload_to='product_image/')
     is_main = models.BooleanField(default=False, verbose_name='Main product image')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='productimages')
-    color = models.ForeignKey(Color, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='productcolors')
+    color = models.ForeignKey(Color, on_delete=models.CASCADE, related_name='productcolors')
 
     def __str__(self):
         return f'{self.product.name} - {self.color.name} - main {self.is_main}'
