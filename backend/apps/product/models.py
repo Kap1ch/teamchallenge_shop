@@ -18,7 +18,7 @@ class Color(BaseModel):
 
 
 class Product(BaseModel):
-    name = models.CharField(max_length=100, verbose_name='Catalog name')
+    name = models.CharField(max_length=100, verbose_name='Product name')
     description = models.TextField(verbose_name="Description product")
     material = models.CharField(max_length=100, verbose_name='Product material name')
     depth = models.IntegerField(verbose_name='depth product')
@@ -28,7 +28,6 @@ class Product(BaseModel):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.IntegerField(blank=True, null=True)
     subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE, related_name='products')
-    colors = models.ManyToManyField(Color, through='ProductColor', related_name='products')
 
     def __str__(self):
         return str(self.name)
@@ -58,4 +57,4 @@ class ProductColor(BaseModel):
     color = models.ForeignKey(Color, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.product.name} - image'
+        return f'{self.product.name} - {self.color.name} - main {self.is_main}'

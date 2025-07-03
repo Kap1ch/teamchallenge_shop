@@ -1,8 +1,8 @@
 from django.contrib import admin
 
-from .models import Product, ProductImage, Color, Review
+from .models import Product, ProductColor, Color, Review
 
-admin.register(Product)
-admin.register(ProductImage)
-admin.register(Color)
-admin.register(Review)
+admin.site.register(Product)
+admin.site.register(ProductColor)
+admin.site.register(Color)
+admin.site.register(Review)

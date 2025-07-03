@@ -4,8 +4,6 @@ from django.utils.text import slugify
 from apps.core.models import BaseModel
 
 
-# Create your models here.
-
 class Catalog(BaseModel):
     name = models.CharField(max_length=80, verbose_name='Catalog name')
     image_url = models.ImageField(upload_to='category_image/')
