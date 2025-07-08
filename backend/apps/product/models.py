@@ -17,10 +17,16 @@ class Color(BaseModel):
         return str(self.name)
 
 
+class Material(BaseModel):
+    name = models.CharField(max_length=100, verbose_name='Product material')
+
+    def __str__(self):
+        return str(self.name)
+
+
 class Product(BaseModel):
     name = models.CharField(max_length=100, verbose_name='Product name')
     description = models.TextField(verbose_name="Description product")
-    material = models.CharField(max_length=100, verbose_name='Product material name')
     depth = models.IntegerField(verbose_name='depth product')
     width = models.IntegerField(verbose_name='width product')
     height = models.IntegerField(verbose_name='height product')
@@ -28,12 +34,12 @@ class Product(BaseModel):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.IntegerField(blank=True, null=True)
     subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE, related_name='products')
+    material = models.ForeignKey(Material, on_delete=models.CASCADE, related_name='products')
 
     def __str__(self):
         return str(self.name)
 
-    def size(self):
-        return f'{self.depth}x{self.width}x{self.height}'
+
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
