@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.db.models import Avg
 from rest_framework.serializers import ModelSerializer, SerializerMethodField, CharField
 
 from apps.catalog.models import SubCategory
@@ -46,17 +46,20 @@ class ProductDetailSerializer(ModelSerializer):
     material = MaterialSerializer(read_only=True)
     reviews = SerializerMethodField()
     productcolors = ProductColorSerializer(many=True, read_only=True)
-
+    avg_rating = SerializerMethodField()
     # size = ReadOnlyField()
 
     class Meta:
         model = Product
         fields = [
             'id', 'name', 'description', 'depth', 'width', 'height', 'slug',
-            'price', 'stock', 'subcategory', 'material',
+            'price', 'stock', 'subcategory', 'material', 'avg_rating',
             'reviews', 'productcolors', 'created',
         ]
 
     def get_reviews(self, obj):
         reviews = obj.reviews.all().order_by('-created')[:5]
         return ReviewSerializer(reviews, many=True).data
+
+    def get_avg_rating(self, obj):
+        return round(obj.reviews.aggregate(avg=Avg('rating'))['avg'] or 0, 2)
