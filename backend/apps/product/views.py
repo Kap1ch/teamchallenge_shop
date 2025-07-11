@@ -7,5 +7,5 @@ class ProductDetailView(generics.RetrieveAPIView):
     queryset = Product.objects.all().prefetch_related(
         'reviews__user',
         'productcolors__color',
-    ).select_related('subcategory', 'material')
+    ).select_related('subcategory')
     serializer_class = ProductDetailSerializer

@@ -20,3 +20,4 @@ class SubCategorySerializer(ModelSerializer):
     class Meta:
         model = SubCategory
         fields = '__all__'
+        ref_name = 'CatalogSubCategory'

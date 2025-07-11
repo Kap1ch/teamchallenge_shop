@@ -2,7 +2,7 @@ from django.db.models import Avg
 from rest_framework.serializers import ModelSerializer, SerializerMethodField, CharField
 
 from apps.catalog.models import SubCategory
-from .models import Product, Review, ProductColor, Material
+from .models import Product, Review, ProductColor
 
 
 class ReviewSerializer(ModelSerializer):
@@ -33,27 +33,20 @@ class SubCategorySerializer(ModelSerializer):
     class Meta:
         model = SubCategory
         fields = ['id', 'name']
-
-
-class MaterialSerializer(ModelSerializer):
-    class Meta:
-        model = Material
-        fields = ['id', 'name', 'created', ]
+        ref_name = 'ProductSubCategory'
 
 
 class ProductDetailSerializer(ModelSerializer):
     subcategory = SubCategorySerializer(read_only=True)
-    material = MaterialSerializer(read_only=True)
     reviews = SerializerMethodField()
     productcolors = ProductColorSerializer(many=True, read_only=True)
     avg_rating = SerializerMethodField()
-    # size = ReadOnlyField()
 
     class Meta:
         model = Product
         fields = [
-            'id', 'name', 'description', 'depth', 'width', 'height', 'slug',
-            'price', 'stock', 'subcategory', 'material', 'avg_rating',
+            'id', 'name', 'description', 'material', 'depth', 'width', 'height', 'slug',
+            'price', 'stock', 'subcategory', 'avg_rating',
             'reviews', 'productcolors', 'created',
         ]
 
