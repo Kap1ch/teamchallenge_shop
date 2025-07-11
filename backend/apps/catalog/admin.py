@@ -1,8 +1,7 @@
 from django.contrib import admin
 
-from .models import Catalog, SubCategory
+from .models import Category, SubCategory
 
-# Register your models here.
 
-admin.site.register(Catalog)
+admin.site.register(Category)
 admin.site.register(SubCategory)

@@ -1,18 +1,18 @@
 from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
 
-from .models import Catalog, SubCategory
+from .models import Category, SubCategory
 
 
-class CatalogSerializer(ModelSerializer):
+class CategorySerializer(ModelSerializer):
     class Meta:
-        model = Catalog
+        model = Category
         fields = '__all__'
 
 
 class SubCategorySerializer(ModelSerializer):
-    category = CatalogSerializer(read_only=True)
+    category = CategorySerializer(read_only=True)
     category_id = PrimaryKeyRelatedField(
-        queryset=Catalog.objects.all(),
+        queryset=Category.objects.all(),
         source='category',
         write_only=True
     )
@@ -20,3 +20,4 @@ class SubCategorySerializer(ModelSerializer):
     class Meta:
         model = SubCategory
         fields = '__all__'
+        ref_name = 'CatalogSubCategory'
