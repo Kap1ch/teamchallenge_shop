@@ -34,11 +34,17 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'django_filters',
+    'colorfield',
     'cloudinary_storage',
     'cloudinary',
     'apps.catalog',
     'apps.core',
+
     'apps.orders',
+
+    'apps.product',
+    'apps.account',
+
 ]
 
 MIDDLEWARE = [
