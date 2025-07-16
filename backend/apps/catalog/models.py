@@ -29,5 +29,3 @@ class SubCategory(BaseModel):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         return super(SubCategory, self).save(*args, **kwargs)
-
-

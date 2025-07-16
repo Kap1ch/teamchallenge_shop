@@ -1,8 +1,13 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .models import Product
+from django.db.models import Min, Max
+
+from apps.catalog.models import Category, SubCategory
+
+from .models import Product, Color, ProductColor
 from .serializers import ProductDetailSerializer, ProductAllSerializer
 
 
@@ -12,6 +17,8 @@ class ProductDetailView(generics.RetrieveAPIView):
         'productcolors__color',
     ).select_related('subcategory')
     serializer_class = ProductDetailSerializer
+    lookup_field = 'slug'
+
 
 
 class ProductAllView(generics.ListAPIView):
@@ -31,7 +38,6 @@ class ProductAllView(generics.ListAPIView):
 
         return queryset
 
-
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -43,3 +49,32 @@ class ProductAllView(generics.ListAPIView):
         serializer = self.get_serializer(self.queryset, many=True)
         print(serializer.data)
         return Response(serializer.data)
+
+
+class ProductFilterOptionsView(APIView):
+    def get(self, request, format=None):
+        products = Product.objects.all()
+
+        subcategories = SubCategory.objects.filter(
+            id__in=products.values_list('subcategory_id', flat=True).distinct()
+        ).values('id', 'name', 'slug')
+
+        categories = Category.objects.filter(id__in=products.values_list('subcategory__category', flat=True).distinct()
+                                             ).values('id', 'name', 'slug')
+
+        colors = Color.objects.filter(
+            id__in=ProductColor.objects.values_list('color_id', flat=True).distinct()
+        ).values('id', 'name', 'color')
+
+        price_range = products.aggregate(
+            price_min=Min('price'),
+            price_max=Max('price')
+        )
+
+        return Response({
+            'categories': list(categories),
+            'subcategories': list(subcategories),
+            'colors': list(colors),
+            'price_min': price_range['price_min'],
+            'price_max': price_range['price_max'],
+        }, status=status.HTTP_200_OK)

@@ -51,8 +51,12 @@ class ProductDetailSerializer(ModelSerializer):
         ]
 
     def get_reviews(self, obj):
-        reviews = obj.reviews.all().order_by('-created')[:5]
-        return ReviewSerializer(reviews, many=True).data
+        reviews = obj.reviews.all().order_by('-created')
+
+        return {
+            'count': reviews.count(),
+            'items': ReviewSerializer(reviews[:5], many=True).data}
+
 
     def get_avg_rating(self, obj):
         return round(obj.reviews.aggregate(avg=Avg('rating'))['avg'] or 0, 2)
@@ -92,5 +96,7 @@ class ProductAllSerializer(ModelSerializer):
     def get_avg_rating(self, obj):
         return round(obj.reviews.aggregate(avg=Avg('rating'))['avg'] or 0, 2)
 
-    def get_avg_rating(self, obj):
-        return round(obj.reviews.aggregate(avg=Avg('rating'))['avg'] or 0, 2)
+
+# class ProductFilterOptionsSerializer(ModelSerializer):
+#     class Meta:
+#         model =
