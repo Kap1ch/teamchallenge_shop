@@ -36,30 +36,6 @@ class SubCategorySerializer(ModelSerializer):
         ref_name = 'ProductSubCategory'
 
 
-class ProductDetailSerializer(ModelSerializer):
-    subcategory = SubCategorySerializer(read_only=True)
-    reviews = SerializerMethodField()
-    productcolors = ProductColorSerializer(many=True, read_only=True)
-    avg_rating = SerializerMethodField()
-
-    class Meta:
-        model = Product
-        fields = [
-            'id', 'name', 'description', 'material', 'depth', 'width', 'height', 'slug',
-            'price', 'stock', 'subcategory', 'avg_rating',
-            'reviews', 'productcolors', 'created',
-        ]
-
-    def get_reviews(self, obj):
-        reviews = obj.reviews.all().order_by('-created')
-
-        return {
-            'count': reviews.count(),
-            'items': ReviewSerializer(reviews[:5], many=True).data}
-
-
-    def get_avg_rating(self, obj):
-        return round(obj.reviews.aggregate(avg=Avg('rating'))['avg'] or 0, 2)
 
 
 class CategorySerializer(ModelSerializer):
@@ -97,6 +73,35 @@ class ProductAllSerializer(ModelSerializer):
         return round(obj.reviews.aggregate(avg=Avg('rating'))['avg'] or 0, 2)
 
 
-# class ProductFilterOptionsSerializer(ModelSerializer):
-#     class Meta:
-#         model =
+class ProductDetailSerializer(ModelSerializer):
+    subcategory = SubCategorySerializer(read_only=True)
+    reviews = SerializerMethodField()
+    productcolors = ProductColorSerializer(many=True, read_only=True)
+    avg_rating = SerializerMethodField()
+    similar_products = SerializerMethodField()
+
+    class Meta:
+        model = Product
+        fields = [
+            'id', 'name', 'description', 'material', 'depth', 'width', 'height', 'slug',
+            'price', 'stock', 'subcategory', 'avg_rating',
+            'reviews', 'productcolors', 'similar_products', 'created',
+        ]
+
+    def get_similar_products(self, obj):
+        similar_products = Product.objects.filter(
+            subcategory=obj.subcategory
+        ).exclude(id=obj.id).order_by('-created')[:5]
+
+        return ProductAllSerializer(similar_products, many=True).data
+
+    def get_reviews(self, obj):
+        reviews = obj.reviews.all().order_by('-created')
+
+        return {
+            'count': reviews.count(),
+            'items': ReviewSerializer(reviews[:5], many=True).data}
+
+
+    def get_avg_rating(self, obj):
+        return round(obj.reviews.aggregate(avg=Avg('rating'))['avg'] or 0, 2)

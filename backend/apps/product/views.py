@@ -47,8 +47,14 @@ class ProductAllView(generics.ListAPIView):
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(self.queryset, many=True)
-        print(serializer.data)
         return Response(serializer.data)
+
+
+class NewArrivalProductView(generics.ListAPIView):
+    queryset = Product.objects.all().order_by('-created')[:8]
+    serializer_class = ProductAllSerializer
+    pagination_class = None
+
 
 
 class ProductFilterOptionsView(APIView):
