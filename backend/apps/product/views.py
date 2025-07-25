@@ -1,4 +1,5 @@
 from rest_framework import generics, status
+from rest_framework.decorators import api_view
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -7,8 +8,8 @@ from django.db.models import Min, Max
 
 from apps.catalog.models import Category, SubCategory
 
-from .models import Product, Color, ProductColor
-from .serializers import ProductDetailSerializer, ProductAllSerializer
+from .models import Product, Color, ProductColor, Material
+from .serializers import ProductDetailSerializer, ProductAllSerializer, CategoryFilterSerializer
 
 
 class ProductDetailView(generics.RetrieveAPIView):
@@ -18,7 +19,6 @@ class ProductDetailView(generics.RetrieveAPIView):
     ).select_related('subcategory')
     serializer_class = ProductDetailSerializer
     lookup_field = 'slug'
-
 
 
 class ProductAllView(generics.ListAPIView):
@@ -56,31 +56,28 @@ class NewArrivalProductView(generics.ListAPIView):
     pagination_class = None
 
 
+@api_view(['GET'])
+def product_filter_opt(request):
+    products = Product.objects.all()
 
-class ProductFilterOptionsView(APIView):
-    def get(self, request, format=None):
-        products = Product.objects.all()
+    categories = Category.objects.all().prefetch_related('subcategories')
+    colors = Color.objects.filter(
+        id__in=ProductColor.objects.values_list('color_id', flat=True).distinct()
+    ).values('id', 'name', 'color')
 
-        subcategories = SubCategory.objects.filter(
-            id__in=products.values_list('subcategory_id', flat=True).distinct()
-        ).values('id', 'name', 'slug')
+    materials = Material.objects.filter(
+        id__in=products.values_list('materials__id', flat=True)
+    ).distinct().values('id', 'name')
 
-        categories = Category.objects.filter(id__in=products.values_list('subcategory__category', flat=True).distinct()
-                                             ).values('id', 'name', 'slug')
+    price_range = products.aggregate(
+        price_min=Min('price'),
+        price_max=Max('price')
+    )
 
-        colors = Color.objects.filter(
-            id__in=ProductColor.objects.values_list('color_id', flat=True).distinct()
-        ).values('id', 'name', 'color')
-
-        price_range = products.aggregate(
-            price_min=Min('price'),
-            price_max=Max('price')
-        )
-
-        return Response({
-            'categories': list(categories),
-            'subcategories': list(subcategories),
-            'colors': list(colors),
-            'price_min': price_range['price_min'],
-            'price_max': price_range['price_max'],
-        }, status=status.HTTP_200_OK)
+    return Response({
+        'categories': CategoryFilterSerializer(categories, many=True).data,
+        'materials': list(materials),
+        'colors': list(colors),
+        'price_min': price_range['price_min'],
+        'price_max': price_range['price_max'],
+    }, status=status.HTTP_200_OK)

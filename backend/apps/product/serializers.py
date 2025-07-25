@@ -2,7 +2,7 @@ from django.db.models import Avg
 from rest_framework.serializers import ModelSerializer, SerializerMethodField, CharField
 
 from apps.catalog.models import Category, SubCategory
-from .models import Product, Review, ProductColor
+from .models import Product, Review, ProductColor, Material
 
 
 class ReviewSerializer(ModelSerializer):
@@ -20,6 +20,12 @@ class ReviewSerializer(ModelSerializer):
         return last_name
 
 
+class MaterialSerializer(ModelSerializer):
+    class Meta:
+        model = Material
+        fields = ['name']
+
+
 class ProductColorSerializer(ModelSerializer):
     color_name = CharField(source='color.name', read_only=True)
     hex = CharField(source='color.color', read_only=True)
@@ -34,8 +40,6 @@ class SubCategorySerializer(ModelSerializer):
         model = SubCategory
         fields = ['id', 'name', 'slug', 'image_url']
         ref_name = 'ProductSubCategory'
-
-
 
 
 class CategorySerializer(ModelSerializer):
@@ -79,6 +83,7 @@ class ProductDetailSerializer(ModelSerializer):
     productcolors = ProductColorSerializer(many=True, read_only=True)
     avg_rating = SerializerMethodField()
     similar_products = SerializerMethodField()
+    material = MaterialSerializer(many=True, read_only=True)
 
     class Meta:
         model = Product
@@ -102,6 +107,19 @@ class ProductDetailSerializer(ModelSerializer):
             'count': reviews.count(),
             'items': ReviewSerializer(reviews[:5], many=True).data}
 
-
     def get_avg_rating(self, obj):
         return round(obj.reviews.aggregate(avg=Avg('rating'))['avg'] or 0, 2)
+
+
+class SubCategoryFilterSerializer(ModelSerializer):
+    class Meta:
+        model = SubCategory
+        fields = ['id', 'name', 'slug']
+
+
+class CategoryFilterSerializer(ModelSerializer):
+    subcategories = SubCategoryFilterSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'slug', 'subcategories']
