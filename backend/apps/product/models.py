@@ -59,5 +59,8 @@ class ProductColor(BaseModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='productcolors')
     color = models.ForeignKey(Color, on_delete=models.CASCADE, related_name='productcolors')
 
+    class Meta:
+        ordering = ('-created',)
+
     def __str__(self):
         return f'{self.product.name} - {self.color.name} - main {self.is_main}'
