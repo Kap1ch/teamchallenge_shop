@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 
 import dj_database_url
@@ -22,6 +23,8 @@ ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1,0.0.0.0").s
     ","
 )
 
+AUTH_USER_MODEL = 'account.User'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -32,15 +35,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'djoser',
     'drf_yasg',
     'django_filters',
     'colorfield',
     'cloudinary_storage',
     'cloudinary',
+    'phonenumber_field',
+    'apps.account',
     'apps.catalog',
     'apps.core',
     'apps.product',
-    'apps.account',
 ]
 
 MIDDLEWARE = [
@@ -129,7 +134,7 @@ LANGUAGES = [
     ('en', 'English')
 ]
 
-TIME_ZONE = 'Europe/Kiev'
+TIME_ZONE = "Europe/Kyiv"
 
 USE_I18N = True
 
@@ -171,10 +176,29 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-        'rest_framework.authentication.SessionAuthentication',
     ),
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 1,
     # "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
+}
+
+
+DJOSER = {
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
+    'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
+    'ACTIVATION_URL': '#/activate/{uid}/{token}',
+    'SEND_ACTIVATION_EMAIL': False,
+    'USER_CREATE_PASSWORD_RETYPE': True,
+    'SERIALIZERS': {
+        'user_create': 'apps.account.serializers.UserCreateSerializer',
+        'user': 'apps.account.serializers.UserSerializer',
+        'current_user': 'apps.account.serializers.UserSerializer',
+    },
+}
+
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }

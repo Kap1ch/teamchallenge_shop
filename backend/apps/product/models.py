@@ -1,5 +1,5 @@
 from colorfield.fields import ColorField
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.text import slugify
 
@@ -7,6 +7,8 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 from apps.core.models import BaseModel
 from apps.catalog.models import SubCategory
+
+User = get_user_model()
 
 
 class Color(BaseModel):
@@ -16,11 +18,13 @@ class Color(BaseModel):
     def __str__(self):
         return str(self.name)
 
+
 class Material(BaseModel):
     name = models.CharField(max_length=60, verbose_name='Name material')
 
     def __str__(self):
         return str(self.name)
+
 
 class Product(BaseModel):
     name = models.CharField(max_length=100, verbose_name='Product name')
@@ -33,10 +37,9 @@ class Product(BaseModel):
     stock = models.IntegerField(blank=True, null=True)
     subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE, related_name='products')
     materials = models.ManyToManyField(Material, related_name='products')
+
     def __str__(self):
         return str(self.name)
-
-
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -58,6 +61,9 @@ class ProductColor(BaseModel):
     is_main = models.BooleanField(default=False, verbose_name='Main product image')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='productcolors')
     color = models.ForeignKey(Color, on_delete=models.CASCADE, related_name='productcolors')
+
+    class Meta:
+        ordering = ('-created',)
 
     def __str__(self):
         return f'{self.product.name} - {self.color.name} - main {self.is_main}'

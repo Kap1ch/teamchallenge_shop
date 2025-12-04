@@ -22,6 +22,9 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('api/catalog/', include('apps.catalog.urls', namespace='catalog_api')),
-    path('api/products/', include('apps.product.urls', namespace='product_api'))
+    path('api/products/', include('apps.product.urls', namespace='product_api')),
+    path('api/auth/', include('apps.account.urls', namespace='auth')),
+
+
 ]
 

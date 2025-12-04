@@ -1,13 +1,20 @@
+from django_filters.rest_framework import DjangoFilterBackend
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
+from rest_framework.filters import SearchFilter
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from django.db.models import Min, Max
 
 from apps.catalog.models import Category, SubCategory
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from .filters import ProductFilter
 from .models import Product, Color, ProductColor, Material
 from .serializers import ProductDetailSerializer, ProductAllSerializer, CategoryFilterSerializer
 
@@ -19,6 +26,8 @@ class ProductDetailView(generics.RetrieveAPIView):
     ).select_related('subcategory')
     serializer_class = ProductDetailSerializer
     lookup_field = 'slug'
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
 
 class ProductAllView(generics.ListAPIView):
@@ -81,3 +90,29 @@ def product_filter_opt(request):
         'price_min': price_range['price_min'],
         'price_max': price_range['price_max'],
     }, status=status.HTTP_200_OK)
+
+
+
+class ProductFilterView(generics.ListAPIView):
+
+    queryset = Product.objects.all().prefetch_related('materials', 'productcolors__color', 'subcategory')
+    serializer_class = ProductAllSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_class = ProductFilter
+    search_fields = ['name', 'description']
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('search', openapi.IN_QUERY, description="Совпадение по тексту имени или описания",
+                              type=openapi.TYPE_STRING),
+            openapi.Parameter('subcategory', openapi.IN_QUERY, description="Slug подкатегории",
+                              type=openapi.TYPE_STRING),
+            openapi.Parameter('color', openapi.IN_QUERY, description="Цвета через запятую", type=openapi.TYPE_STRING),
+            openapi.Parameter('material', openapi.IN_QUERY, description="Материалы через запятую",
+                              type=openapi.TYPE_STRING),
+            openapi.Parameter('price_min', openapi.IN_QUERY, description="Минимальная цена", type=openapi.TYPE_NUMBER),
+            openapi.Parameter('price_max', openapi.IN_QUERY, description="Максимальная цена", type=openapi.TYPE_NUMBER),
+        ]
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
