@@ -2,7 +2,9 @@ asgiref==3.8.1
 Django==5.2.1
 djangorestframework==3.16.0
 djangorestframework_simplejwt==5.5.0
+djoser==2.3.3
 django-colorfield==0.14.0
+django-phonenumber-field==8.1.0
 drf-yasg==1.21.10
 psycopg2-binary==2.9.10
 python-dotenv==1.1.0
@@ -14,6 +16,7 @@ whitenoise==6.9.0
 django-cloudinary-storage==0.3.0
 cloudinary==1.44.1
 pillow==11.2.1
+phonenumbers==9.0.10
 django-filter==25.1
 dj-database-url==3.0.0
 gunicorn==23.0.0
