@@ -5,11 +5,14 @@ from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.filters import SearchFilter
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from django.db.models import Min, Max
 
 from apps.catalog.models import Category, SubCategory
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .filters import ProductFilter
 from .models import Product, Color, ProductColor, Material
@@ -23,6 +26,8 @@ class ProductDetailView(generics.RetrieveAPIView):
     ).select_related('subcategory')
     serializer_class = ProductDetailSerializer
     lookup_field = 'slug'
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
 
 class ProductAllView(generics.ListAPIView):
